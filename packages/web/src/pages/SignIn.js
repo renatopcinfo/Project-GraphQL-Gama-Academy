@@ -1,25 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function SignIn() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    fetch('http://localhost:8000/authenticate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    }).then((res) => res.json())
+      .then((data) => {
+        console.log('Success!', data)
+      })
+  }
+
+  const handleEmailChange = (event) => setEmail(event.target.value);
+
+  const handelPasswordChange = (event) => setPassword(event.target.value);
+
   return (
-    <form action="/authenticate" method="POST">
+    <form onSubmit={handleSubmit}>
       <fieldset>
-        <label for="email">E-mail</label>
+        <label htmlFor="email">E-mail</label>
         <input
           id="email"
-          name="email"
           type="email"
-          inputmode="email"
-          autocomplete="username"
+          value={email}
+          onChange={handleEmailChange}
+          inputMode="email"
+          autoComplete="username"
         />
       </fieldset>
+
       <fieldset>
-        <label for="password">Senha</label>
+        <label htmlFor="password">Senha</label>
         <input
           id="password"
-          name="password"
           type="password"
-          autocomplete="current-password"
+          autoComplete="current-password"
+          value={password}
+          onChange={handelPasswordChange}
         />
       </fieldset>
       <button type="submit">Entrar</button>
