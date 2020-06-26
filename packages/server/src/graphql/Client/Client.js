@@ -11,9 +11,19 @@ export const typeDefs = gql`
     disabled: Boolean!
   }  
 
+  type ClientList implements List {
+    items: [Client!]!
+    totalItems: Int!
+  }
+
+  input ClientListOptions {
+    take: Int
+    skip: Int
+  }
+
   extend type Query {
     client(id: ID!): Client
-    clients:[Client!]!
+    clients(options: ClientListOptions): ClientList
   }
 `;
 
@@ -23,9 +33,22 @@ export const resolvers = {
       const clients = await clientRepository.read();
       return clients.find((client) => client.id === id);
     },
-    clients: async () => {
+    clients: async (_, args) => {
+      const {
+        skip = 0,
+        take = 10,
+      } = args.options || {};
+
+      /**
+       * @type {Array <*>}
+      */
+
       const clients = await clientRepository.read();
-      return clients;
+
+      return {
+        items: clients.slice(skip, skip + take),
+        totalItems: clients.length
+      };
     },
   },
 };
