@@ -52,6 +52,8 @@ export const typeDefs = gql`
     createClient(input: CreateClientInput!): Client!
     updateClient(input: UpdateClientInput!): Client!
     deleteClient(id: ID!): Client!
+    enableClient(id: ID!): Client!
+    disableClient(id: ID!): Client!
   }
 `;
 
@@ -174,6 +176,58 @@ export const resolvers = {
       await clientRepository.write(updatedClients);
       return client;
 
-    }
+    },
+
+    enableClient: async (_, { id }) => {
+      const clients = await clientRepository.read();
+
+      const currentClient = clients.find((client) => client.id === id);
+
+      if (!currentClient)
+        throw new Error(`No client with this id "${id}"`);
+
+      if (!currentClient.disabled)
+        throw new Error(`client "${id}" is already enabled.`);
+
+      const updatedClient = {
+        ...currentClient,
+        disabled: false,
+      };
+
+      const updatedClients = clients.map((client) => {
+        if (client.id === updatedClient.id) return updatedClient;
+        return client;
+      })
+
+      await clientRepository.write(updatedClients);
+
+      return updatedClient;
+    },
+
+    disableClient: async (_, { id }) => {
+      const clients = await clientRepository.read();
+
+      const currentClient = clients.find((client) => client.id === id);
+
+      if (!currentClient)
+        throw new Error(`No client with this id "${id}"`);
+
+      if (currentClient.disabled)
+        throw new Error(`client "${id}" is already disabled.`);
+
+      const updatedClient = {
+        ...currentClient,
+        disabled: true,
+      };
+
+      const updatedClients = clients.map((client) => {
+        if (client.id === updatedClient.id) return updatedClient;
+        return client;
+      })
+
+      await clientRepository.write(updatedClients);
+
+      return updatedClient;
+    },
   },
 };
