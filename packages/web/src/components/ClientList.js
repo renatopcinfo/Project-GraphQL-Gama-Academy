@@ -26,7 +26,6 @@ export function ClientList() {
     error,
     loading,
     fetchMore,
-    called
   } = useQuery(GET_CLIENT_LIST,
     {
       fetchPolicy: 'cache-and-network',
@@ -67,7 +66,7 @@ export function ClientList() {
         <strong>Erro ao buscar os clientes</strong>
       </section>
     );
-  if (loading && !called)
+  if (loading && !data)
     return (
       <section>
         <p>Carregando...</p>
